@@ -29,8 +29,6 @@ const SignUp = () => {
         const newUser = await store.registration(username, password, email)
             .then(async () => await store.login(username, password))
 
-            console.log('>>>', newUser)
-
         if (newUser === 200) {
             navigate('/')
         } else {

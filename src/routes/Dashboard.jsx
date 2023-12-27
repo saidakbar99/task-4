@@ -17,14 +17,6 @@ const Dashboard = () => {
     const { store } = useContext(Context)
     const token = sessionStorage.getItem('token')
 
-    useEffect(() => {
-        getUsers()
-
-        if (token) {
-            store.checkAuth()
-        }
-    }, [])
-
     const resetCheckboxes = () => {
         setIsCheck([])
         setIsSelectedAll(false)
@@ -40,13 +32,17 @@ const Dashboard = () => {
         }
     }
 
+    const logout = async () => {
+        await store.logout()
+            .then(() => navigate('/'))
+    }
+
     const deleteUser = async () => {
         try {
             await UserService.deleteUsers(isCheck)
 
             if (isCheck.includes(store.user.id)) {
-                await store.logout()
-                    .then(() => navigate('/'))
+                logout()
             }
 
             getUsers()
@@ -60,8 +56,7 @@ const Dashboard = () => {
             await UserService.blockUsers(isCheck)
 
             if (isCheck.includes(store.user.id)) {
-                await store.logout()
-                    .then(() => navigate('/'))
+                logout()
             }
 
             getUsers()
@@ -79,14 +74,10 @@ const Dashboard = () => {
         }
     }
 
-    const logout = async () => {
-        await store.logout()
-            .then(() => navigate('/'))
-    }
-
     const handleSelectAll = e => {
         setIsSelectedAll(!isSelectedAll)
         setIsCheck(users.map(user => user._id))
+
         if (isSelectedAll) {
           setIsCheck([])
         }
@@ -95,6 +86,7 @@ const Dashboard = () => {
     const handleCheckbox = e => {
         const { id, checked } = e.target
         setIsCheck([...isCheck, id])
+
         if (!checked) {
           setIsCheck(isCheck.filter(item => item !== id))
         }
@@ -104,11 +96,11 @@ const Dashboard = () => {
         if (!token) {
             navigate('/sign_in')
         }
+
+        getUsers()
     }, [token])
 
-//! REFACTOR useEffects
     return (
-        //! DEcompostie table
         <div className='container pt-4'>
             <div className='d-flex mb-2 justify-content-between align-items-center'>
                 <button
